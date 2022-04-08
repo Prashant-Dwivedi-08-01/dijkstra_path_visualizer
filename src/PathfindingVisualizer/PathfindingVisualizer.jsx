@@ -1,6 +1,6 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import Node from './Node/Node';
-import {dijkstra, getNodesInShortestPathOrder} from '../algorithms/dijkstra';
+import { dijkstra, getNodesInShortestPathOrder } from '../algorithms/dijkstra';
 
 import './PathfindingVisualizer.css';
 
@@ -20,26 +20,27 @@ export default class PathfindingVisualizer extends Component {
 
   componentDidMount() {
     const grid = getInitialGrid();
-    this.setState({grid});
+    this.setState({ grid });
   }
 
   handleMouseDown(row, col) {
     const newGrid = getNewGridWithWallToggled(this.state.grid, row, col);
-    this.setState({grid: newGrid, mouseIsPressed: true});
+    this.setState({ grid: newGrid, mouseIsPressed: true });
   }
 
   handleMouseEnter(row, col) {
     if (!this.state.mouseIsPressed) return;
     const newGrid = getNewGridWithWallToggled(this.state.grid, row, col);
-    this.setState({grid: newGrid});
+    this.setState({ grid: newGrid });
   }
 
   handleMouseUp() {
-    this.setState({mouseIsPressed: false});
+    this.setState({ mouseIsPressed: false });
   }
 
   animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder) {
     for (let i = 0; i <= visitedNodesInOrder.length; i++) {
+      // When we reach the last node, i.e the last visited node is the target node as after the algo stops
       if (i === visitedNodesInOrder.length) {
         setTimeout(() => {
           this.animateShortestPath(nodesInShortestPathOrder);
@@ -65,28 +66,28 @@ export default class PathfindingVisualizer extends Component {
   }
 
   visualizeDijkstra() {
-    const {grid} = this.state;
+    const { grid } = this.state;
     const startNode = grid[START_NODE_ROW][START_NODE_COL];
     const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
-    const visitedNodesInOrder = dijkstra(grid, startNode, finishNode);
-    const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode);
+    const visitedNodesInOrder = dijkstra(grid, startNode, finishNode); // nodes that algo visited in order of it's vist
+    const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode); // actual path
     this.animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder);
   }
 
   render() {
-    const {grid, mouseIsPressed} = this.state;
+    const { grid, mouseIsPressed } = this.state;
 
     return (
       <>
-        <button onClick={() => this.visualizeDijkstra()}>
+        <a className='neon-button' onClick={() => this.visualizeDijkstra()}>
           Visualize Dijkstra's Algorithm
-        </button>
+        </a>
         <div className="grid">
           {grid.map((row, rowIdx) => {
             return (
               <div key={rowIdx}>
                 {row.map((node, nodeIdx) => {
-                  const {row, col, isFinish, isStart, isWall} = node;
+                  const { row, col, isFinish, isStart, isWall } = node;
                   return (
                     <Node
                       key={nodeIdx}
@@ -130,7 +131,7 @@ const createNode = (col, row) => {
     row,
     isStart: row === START_NODE_ROW && col === START_NODE_COL,
     isFinish: row === FINISH_NODE_ROW && col === FINISH_NODE_COL,
-    distance: Infinity,
+    distance: Infinity, // initial distance is Infinity for every node
     isVisited: false,
     isWall: false,
     previousNode: null,
@@ -138,12 +139,12 @@ const createNode = (col, row) => {
 };
 
 const getNewGridWithWallToggled = (grid, row, col) => {
-  const newGrid = grid.slice();
-  const node = newGrid[row][col];
+  const newGrid = grid.slice(); // slice of orginal grid as new grid. No params passed in slice, thus we have whole grid
+  const node = newGrid[row][col]; // target that node
   const newNode = {
     ...node,
-    isWall: !node.isWall,
+    isWall: !node.isWall, // toggle from wall to no wall
   };
-  newGrid[row][col] = newNode;
+  newGrid[row][col] = newNode; // replace the old node with new one
   return newGrid;
 };
